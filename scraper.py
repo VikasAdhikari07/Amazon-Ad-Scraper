@@ -5,10 +5,22 @@ import datetime
 import pandas as pd
 from bs4 import BeautifulSoup
 import gspread
+import time
 
 google_url = "https://www.google.com"
 
-driver = webdriver.Chrome()
+# Set up Chrome options to mimic human behavior
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_argument("--disable-blink-features=AutomationControlled")  # Prevent bot detection
+chrome_options.add_argument("--start-maximized")  # Start in maximized window
+chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+chrome_options.add_experimental_option("useAutomationExtension", False)
+chrome_options.add_argument("--disable-gpu")  # Disable GPU acceleration
+chrome_options.add_argument("--disable-software-rasterizer")  # Disable software rendering fallback
+
+
+# Initialize WebDriver with options
+driver = webdriver.Chrome(options=chrome_options)
 driver.get(google_url)
 
 google_serarch = driver.find_element(By.NAME, "q")
@@ -17,7 +29,7 @@ google_serarch.send_keys(Keys.RETURN)
 
 first_result = driver.find_element(By.XPATH, "(//h3)[1]")  # XPath to select the first result's title
 first_result.click()
-
+time.sleep(10)
 search_bar = driver.find_element(By.ID, "twotabsearchtextbox")
 search_key = "coffee"
 search_bar.clear()
@@ -25,6 +37,7 @@ search_bar.send_keys(search_key)
 search_bar.send_keys(Keys.RETURN)
 
 response = driver.page_source
+driver.quit()
 soup = BeautifulSoup(response, 'html.parser')
 result = []
 time = str(datetime.datetime.now())
